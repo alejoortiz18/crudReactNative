@@ -1,8 +1,6 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { isEmpty, size } from 'lodash'
-import shortid from 'shortid'
-import { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } from 'react-dom/cjs/react-dom.development'
-
+import { addDocument, getCollection } from './actions'
 
 function App() {
   const [task, setTask] = useState("")
@@ -11,8 +9,17 @@ function App() {
   const [id, setId] = useState("")
   const [error, setError] = useState(null)
 
-  const validForm = () =>
-  {
+useEffect(()=> {
+  (async () =>{
+    const result = await getCollection("tasks")
+    if(result.statusResponse){
+      setTasks(result.data)
+    }
+
+  })()
+},[])
+  
+  const validForm = () =>{
     let isValid = true
     setError(null)
 
@@ -24,26 +31,23 @@ function App() {
     return isValid
   }
 
-  const addTask =(e)=>
-  {
+  const addTask = async (e)=>{
     e.preventDefault()
 
     if(!validForm())
     {
       return
     }
-    
-      const newTask =
-      {
-        id:shortid.generate(),
-        name:task
-      }
-      setTasks([...tasks,newTask])
+    const result =await addDocument("tasks",{name: task})
+    if(!result.statusResponse){
+      setError(result.error)
+      return
+    }  
+      setTasks([...tasks,{id: result.data.id, name:task}])
       setTask("")
   }
 
-  const saveTask =(e)=>
-  {
+  const saveTask =(e)=> {
     e.preventDefault()
 
      if(!validForm()){
@@ -139,3 +143,5 @@ function App() {
 }
 
 export default App;
+
+https://www.youtube.com/watch?v=tgSol1A41oI&list=PLuEZQoW9bRnSZUVV93R1N9_xpqoiK-xhE&index=21
