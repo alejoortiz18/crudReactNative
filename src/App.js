@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { isEmpty, size } from 'lodash'
-import { addDocument, getCollection } from './actions'
+import { addDocument, getCollection, updateDocument } from './actions'
 
 function App() {
   const [task, setTask] = useState("")
@@ -39,6 +39,7 @@ useEffect(()=> {
       return
     }
     const result =await addDocument("tasks",{name: task})
+    
     if(!result.statusResponse){
       setError(result.error)
       return
@@ -47,20 +48,26 @@ useEffect(()=> {
       setTask("")
   }
 
-  const saveTask =(e)=> {
+  const saveTask =async (e)=> {
     e.preventDefault()
 
      if(!validForm()){
 
-     
       return
     }
-     
-      const editedTasks = tasks.map(item => item.id === id ? {id, name:task}: item)
-      setTasks(editedTasks)
-      setEditMode(false)
-      setTask("")
-      setId("")
+    
+    const result = await updateDocument("tasks",id,{name:task})
+
+    if(!result.statusResponse){
+      setError(result.error)
+      return
+    }
+
+    const editedTasks = tasks.map(item => item.id === id ? {id, name:task}: item)
+    setTasks(editedTasks)
+    setEditMode(false)
+    setTask("")
+    setId("")
   }
 
 
@@ -143,5 +150,3 @@ useEffect(()=> {
 }
 
 export default App;
-
-https://www.youtube.com/watch?v=tgSol1A41oI&list=PLuEZQoW9bRnSZUVV93R1N9_xpqoiK-xhE&index=21
